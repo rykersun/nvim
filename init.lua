@@ -53,8 +53,13 @@ require("lazy").setup({
     config = function()
       require("mason-lspconfig").setup({
         ensure_installed = {
-          "lua_ls",
-        },  -- 自動安裝 Lua LSP
+          "lua_ls", -- lua
+          "ts_ls", -- js
+          --"clangd", -- c/c++
+          --"marksman", -- markdown
+          "pyright", -- python
+          --"rust_analyzer", -- rust
+        },  -- 自動安裝指定的 LSP
         automatic_installation = true,  -- 自動安裝未安裝的 LSP
       })
     end,
@@ -70,6 +75,10 @@ require("lazy").setup({
           "lua",
           "vim",
           "vimdoc",
+          "python",
+          --"c",
+          --"cpp",
+          --"rust",
           },  -- 安裝指定的解析器
         auto_install = false,  -- 不自動安裝缺少的解析器
         highlight = { enable = true },  -- 啟用語法高亮
@@ -126,14 +135,22 @@ require("lazy").setup({
     dependencies = {
       "hrsh7th/cmp-buffer",  -- 緩衝區補全來源
       "hrsh7th/cmp-path",  -- 路徑補全來源
-      "L3MON4D3/LuaSnip",  -- Snippet 引擎
+      "hrsh7th/cmp-nvim-lsp",  -- LSP 補全來源
       "saadparwaiz1/cmp_luasnip",  -- Snippet 補全來源
+      "L3MON4D3/LuaSnip",  -- Snippet 引擎
       "rafamadriz/friendly-snippets",  -- 預設的 Snippet
     },
     config = function()
       local cmp = require("cmp")
       local luasnip = require("luasnip")
       require("luasnip.loaders.from_vscode").lazy_load()  -- 載入 VSCode 風格的 Snippet
+
+      -- 定義一個函數，檢查光標前是否有文字
+      local has_words_before = function()
+        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+        return col ~= 0 and
+          vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+      end
 
       cmp.setup({
         snippet = {
@@ -146,7 +163,26 @@ require("lazy").setup({
           ["<C-p>"] = cmp.mapping.select_prev_item(),  -- Ctrl-p 選擇上一個項目
           ["<C-Space>"] = cmp.mapping.complete(),  -- Ctrl-Space 呼叫補全
           ["<CR>"] = cmp.mapping.confirm({ select = true }),  -- Enter 確認選擇
-          ["<Tab>"] = cmp.mapping.confirm({ select = true }),  -- Tab 確認選擇
+
+          -- 自定義 Tab 和 Shift-Tab 行為
+          ["<Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.confirm({ select = true })  -- 補全選單可見，確認選擇
+            elseif luasnip.expand_or_jumpable() then
+              luasnip.expand_or_jump()  -- 有可跳轉的 Snippet，展開或跳轉
+            elseif has_words_before() then
+              cmp.complete()  -- 光標前有文字，呼叫補全
+            else
+              fallback()  -- 否則，執行縮排
+            end
+          end, { "i", "s" }),
+          ["<S-Tab>"] = cmp.mapping(function(fallback)
+            if luasnip.jumpable(-1) then
+              luasnip.jump(-1)  -- Shift-Tab 跳回上一個佔位符
+            else
+              fallback()  -- 否則，執行默認行為
+            end
+          end, { "i", "s" }),
         }),
         sources = cmp.config.sources({
           { name = "nvim_lsp" },  -- 來自 LSP 的補全
@@ -155,6 +191,13 @@ require("lazy").setup({
           { name = "path" },  -- 來自檔案路徑的補全
         }),
       })
+
+      -- 與 nvim-autopairs 進行整合
+      local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+      cmp.event:on(
+        "confirm_done",
+        cmp_autopairs.on_confirm_done()
+      )
     end,
   },
 
@@ -178,6 +221,26 @@ require("lazy").setup({
       vim.keymap.set("n", "<leader>ff", builtin.find_files, {})  -- 查找檔案
       vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})  -- 全域搜尋
       vim.keymap.set("n", "<leader>fb", builtin.buffers, {})  -- 列出緩衝區
+    end,
+  },
+
+  -- 新增括弧配對插件
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function()
+      require("nvim-autopairs").setup({})
+    end,
+  },
+
+  -- LuaSnip 插件（Snippet 引擎）
+  {
+    "L3MON4D3/LuaSnip",
+    dependencies = {
+      "rafamadriz/friendly-snippets",  -- 預設的 Snippet 集合
+    },
+    config = function()
+      require("luasnip.loaders.from_vscode").lazy_load()
     end,
   },
 })
