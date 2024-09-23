@@ -54,7 +54,7 @@ require("lazy").setup({
       require("mason-lspconfig").setup({
         ensure_installed = {
           "lua_ls", -- lua
-          "ts_ls", -- js
+          "ts_ls", -- javascript
           --"clangd", -- c/c++
           --"marksman", -- markdown
           "pyright", -- python
@@ -76,6 +76,7 @@ require("lazy").setup({
           "vim",
           "vimdoc",
           "python",
+          "javascript",
           --"c",
           --"cpp",
           --"rust",
