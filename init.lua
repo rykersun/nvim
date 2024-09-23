@@ -54,10 +54,10 @@ require("lazy").setup({
       require("mason-lspconfig").setup({
         ensure_installed = {
           "lua_ls", -- lua
-          "ts_ls", -- javascript
+          --"ts_ls", -- javascript
           --"clangd", -- c/c++
           --"marksman", -- markdown
-          "pyright", -- python
+          --"pyright", -- python
           --"rust_analyzer", -- rust
         },  -- 自動安裝指定的 LSP
         automatic_installation = true,  -- 自動安裝未安裝的 LSP
@@ -74,9 +74,9 @@ require("lazy").setup({
         ensure_installed = {
           "lua",
           "vim",
-          "vimdoc",
-          "python",
-          "javascript",
+          --"vimdoc",
+          --"python",
+          --"javascript",
           --"c",
           --"cpp",
           --"rust",
