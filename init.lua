@@ -202,29 +202,6 @@ require("lazy").setup({
     end,
   },
 
-  -- 檔案瀏覽器（使用跨平台相容的設定）
-  {
-    "nvim-telescope/telescope.nvim", tag = "0.1.5",
-    dependencies = {
-      "nvim-lua/plenary.nvim",  -- 必需的函式庫
-      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },  -- FZF 支援
-    },
-    config = function()
-      local telescope = require("telescope")
-      telescope.setup({
-        defaults = {
-          file_ignore_patterns = { "node_modules", ".git" },  -- 忽略的目錄
-        },
-      })
-      telescope.load_extension('fzf')  -- 載入 FZF 擴充
-
-      local builtin = require("telescope.builtin")
-      vim.keymap.set("n", "<leader>ff", builtin.find_files, {})  -- 查找檔案
-      vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})  -- 全域搜尋
-      vim.keymap.set("n", "<leader>fb", builtin.buffers, {})  -- 列出緩衝區
-    end,
-  },
-
   -- 新增括弧配對插件
   {
     "windwp/nvim-autopairs",
