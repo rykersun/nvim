@@ -9,7 +9,7 @@ vim.opt.smartindent = true  -- 智能縮進
 vim.opt.wrap = false  -- 不自動換行
 vim.opt.ignorecase = true  -- 搜索時忽略大小寫
 vim.opt.smartcase = true  -- 搜索時若包含大寫字母，則區分大小寫
-vim.opt.termguicolors = false  -- 不使用真實色彩
+vim.opt.termguicolors = true  -- 不使用真實色彩
 vim.opt.signcolumn = "yes"  -- 永遠顯示符號欄
 vim.opt.updatetime = 250  -- 更新時間為 250 毫秒
 vim.opt.timeoutlen = 300  -- 映射超時時間為 300 毫秒
@@ -81,9 +81,12 @@ require("lazy").setup({
           --"cpp",
           --"rust",
           },  -- 安裝指定的解析器
-        auto_install = false,  -- 不自動安裝缺少的解析器
-        highlight = { enable = true },  -- 啟用語法高亮
-        indent = { enable = true },  -- 啟用智能縮進
+          sync_install = true,
+          auto_install = true,
+          highlight = {
+            enable = true,
+          },
+          --indent = { enable = true },  -- 啟用智能縮進
       })
     end,
   },
@@ -110,11 +113,12 @@ require("lazy").setup({
             },
             diagnostics = {
               globals = {'vim'},  -- 認可全域變數 vim
+              disable = {'missing-fields'},
             },
-            workspace = {
-              library = vim.api.nvim_get_runtime_file("", true),  -- 自動加載工作區
-              checkThirdParty = false,  -- 不檢查第三方程式碼
-            },
+            --workspace = {
+            --  library = vim.api.nvim_get_runtime_file("", true),  -- 自動加載工作區
+            --  checkThirdParty = false,  -- 不檢查第三方程式碼
+            --},
             telemetry = {
               enable = false,  -- 關閉遙測
             },
